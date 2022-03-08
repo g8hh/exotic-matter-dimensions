@@ -1527,13 +1527,13 @@ function load(type) {
 function exportSave() {
   save()
   navigator.clipboard.writeText(btoa(localStorage.getItem("save")))
-  alert("Copied to clipboard")
+  alert("已复制到剪切板")
 }
 function wipeSave() {
   let numa = Math.floor(50*3**Math.random())
   let numb = Math.floor(50*3**Math.random())
   let answer = numa*numb
-  let confirm = prompt("To confirm that you want to wipe your save, answer this question: What is "+numa+" × "+numb+"?")
+  let confirm = prompt("要确认您要擦除存档，请回答以下问题："+numa+" × "+numb+"?")
   if (confirm==answer) {
     exoticmatter = 0;
     totalexoticmatter = 0;
@@ -1596,7 +1596,7 @@ function wipeSave() {
     divineEnergy = 0
     darkEnergy = 0
   } else {
-    alert("Incorrect answer, wiping did not proceed.")
+    alert("答案不正确，擦拭未执行。")
   }
 }
 function toggleOfflineSpeedupLength() {
