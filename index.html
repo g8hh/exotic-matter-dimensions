@@ -52,7 +52,7 @@
         </div>
         <div class="mainTab" id="tabMasteries" style="display:none">
           <p>You have <span id="masteryPowerDisplay" class="masterytext">0</span> mastery power.<br>
-          You are getting <span id="masteryPowerPerSec" class="masterytext">0</span> mastery power per second.</p>
+          You are getting <span id="masteryPowerPerSec" class="masterytext">0</span> mastery power per second (based on exotic matter and time since last mastery swap).</p>
           <table><tr><td><button class="masterybutton" id="Mastery11Button" onClick="toggleMastery(11)">Exotic matter gain is <span id="Mastery11Effect">0</span>x faster</button></td>
           <td><button class="masterybutton" id="Mastery12Button" onClick="toggleMastery(12)">Axis are <span id="Mastery12Effect">0</span>x cheaper</button></td></tr></table><br>
           <table id="MasteryRow2"><tr><td><button class="masterybutton" id="Mastery21Button" onClick="toggleMastery(21)">Multiply the X Axis effect by <span id="Mastery21Effect">0</span>x</button></td>
@@ -73,7 +73,7 @@
           <td><button class="masterybutton" id="Mastery82Button" onClick="toggleMastery(82)">Mastery power gain is multiplied by <span id="Mastery82Effect">0</span> (increased by exotic matter)</button></td>
           <td><button class="masterybutton" id="Mastery83Button" onClick="toggleMastery(83)">Mastery power gain is multiplied by <span id="Mastery83Effect">0</span> (increased by dark matter)</button></td>
           <td><button class="masterybutton" id="Mastery84Button" onClick="toggleMastery(84)">Mastery power gain is multiplied by <span id="Mastery84Effect">0</span> (increased by stardust)</button></td>
-          <td><button class="masterybutton" id="Mastery85Button" onClick="toggleMastery(85)">Add <span id="Mastery85Effect">0</span> to the base mastery power gain exponent<br><span class="small" id="Mastery85Approx"></span></button></td></tr></table>
+          <td><button class="masterybutton" id="Mastery85Button" onClick="toggleMastery(85)">Add <span id="Mastery85Effect">0</span> to the base mastery power gain exponent<br><span class="small" id="Mastery85Approx"></span></button></td></tr></table><br>
           <table id="MasteryRow9"><tr><td><button class="masterybutton" id="Mastery91Button" onClick="toggleMastery(91)">The Masteries in the row above are <span id="Mastery91Effect">0</span>% stronger (increases over time)</button></td>
           <td><button class="masterybutton" id="Mastery92Button" onClick="toggleMastery(92)">The Masteries in the row above are <span id="Mastery92Effect">0</span>% stronger (decreases over time)</button></td></tr></table><br>
         </div>
@@ -110,7 +110,7 @@
             <td><button class="optionsbutton" onClick="toggle('autosaveIsOn')">Autosave: <span id="toggleAutosave"></span></button></td>
             <td><button class="redoptionsbutton" onClick="wipeSave()">WIPE SAVE</button></td>
             <td><button class="optionsbutton" onClick="multitoggle('offlineSpeedupLength',[1,5,10,30,60,300,3600])">Offline speedup length: <span id="offlineSpeedupLength"></span></button></td>
-            <td><button class="optionsbutton" onClick="toggle('offlineSpeedupOn')">Offline speedup: </span id="offlineSpeedupOn"></span></button></td>
+            <td><button class="optionsbutton" onClick="multitoggle('offlineSpeedupOn',['On','Weakened','Off'])">Offline speedup: <span id="offlineSpeedupOn"></span></button></td>
           </tr><tr>
             <td><button class="optionsbutton" onClick="load('import')">Import save</button></td>
             <td><button class="optionsbutton" onClick="exportSave()">Export save</button></td>
@@ -120,6 +120,24 @@
         </div>
         <div class="optionsTab" id="Changelog" style="display:none">
           <h2 style="color: #ff0000">WARNING: SPOILER ALERT FOR THE ENTIRE GAME</h2>
+          <h1>v1β.10 "That's because I'm a good game dev and pushed some code which totally works" (2022/06/14)</h1>
+          - BUGFIX: Fixed exotic matter gain being raised by the spatial energy effect instead of the dark energy effect
+          <h1>v1β.9 "Worst balancing ever" (2022/06/11)</h1>
+          - BALANCE: Energy effects now softcap past ^2.5 (except spatial energy which softcaps at ^15 and meta energy which doesn't softcap)
+          <h1>v1β.8 "But I <strike>don't</strike> want to grind! Part 2" (2022/06/08)</h1>
+          - BUGFIX: The "Offline Speedup On" button now works as intended (hopefully)<br>
+          - BUGFIX: 9th row Masteries are now properly on a separate row<br>
+          - BUGFIX: Knowledge Supernova now displays the correct value<br>
+          - INTERFACE: Added a tooltip explaining how mastery power gain works
+          <h1>v1β.7 "But I <strike>don't</strike> want to grind!" (2022/06/08)</h1>
+          - BALANCE: Dark W axis cost increases much, much faster once you reach 64<br>
+          - QOL: Fixed "Buy Max Axis"
+          <h1>v1β.6 "But I <strike>don't</strike> want to grind!" (2022/06/08)</h1>
+          - QOL: Added option to weaken offline progress beyond 1 hour
+          <h1>v1β.5 "Mastery of Glitches" (2022/06/07)</h1>
+          - BUGFIX: NaN should no longer occur
+          <h1>v1β.4 "I give up." (2022/06/06)</h1>
+          - ANNOUNCEMENT: <b>The game will no longer display a permanent "Loading game..." screen. AleManInc will from now on do the responsible thing and test his updates locally.</b>
           <h1>v1β.3 "The Useless Stat Breakdown" (2022/06/05)</h1>
           - BUGFIX: Stat breakdown for mastery power formula exponent now shows the correct value<br>
           - BUGFIX: Offline progress no longer exploitable by idling<br>
@@ -214,7 +232,7 @@
           <div class="htpTab" id="HTPDMasteries" style="display:none"><h3>Masteries</h3><p>In Masteries, you can pick one of two upgrades in each row. These upgrades grow in power based on your Mastery Power, which increases over time based on your exotic matter.</p><p>You can switch these Masteries at any time, but this will reset your Mastery Power back to 0 and it will take time to build back up.</p><p>Initially you only have one row of Masteries unlocked, but you will unlock more as you progress.</p><p>Masteries persist through all soft resets, but Mastery Power does not.</p></div>
           <div class="htpTab" id="HTPDStardust" style="display:none"><h3>Stardust</h3><p>When you reach <span class="inf inf22"></span> exotic matter, you will unlock the option to reset your progress in exchange for Stardust. Stardust gives you boosts depending on how many you have, and it can also be spent on upgrades.</p><p>However, stardust is a static prestige layer, meaning that the more you have, the more exotic matter you need to reach to get more.</p></div>
           <div class="htpTab" id="HTPDStars" style="display:none"><h3>Stars</h3><p>Stars are a feature where you can buy upgrades with Stars, which increase in cost when you buy one.</p><p>Depending on how many Stars you have, you can only pick Stars from one row, not the whole board.</p></div>
-          <div class="htpTab" id="HTPDDarkMatter" style="display:none"><h3>Dark Matter</h3><p>Dark Matter is a new type of matter. It is generated by dark axis instead of normal axis, and for every 4 dark axis bought you get a normal axis.</p><p>If you get enough dark axis, you can reset your dark matter to gain an Axiom, which boosts dark matter and a specific dark axis.</p></div>
+          <div class="htpTab" id="HTPDDarkMatter" style="display:none"><h3>Dark Matter</h3><p>Dark Matter is a new type of matter. It is generated by dark axis instead of normal axis, and for every 3 dark axis bought you get a normal axis.</p><p>If you get enough dark axis, you can reset your dark matter to gain a Dark Star, which boosts dark matter and a specific dark axis, as well as increasing the effect of dark axis on normal axis.</p></div>
           <div class="htpTab" id="HTPDEnergy" style="display:none"><h3>Energy</h3><p>In Energy there are six types of energy, each boosting a different resource. Energy increases exponentially until it reaches its respective resource, at what point the resource is boosted.</p></div>
           <div class="htpTab" id="HTPDSupernova" style="display:none"><h3>Supernova</h3><p>A Supernova is a powerful boost that can be activated during a run, granting a large quantity of a resource but not affecting its production.</p><p>They are only replenished when doing a reset, so their use should be planned wisely.</p></div>
         </div>
@@ -233,8 +251,8 @@
         <div class="statisticsTab" id="Hidden Statistics" style="display:none">
           <table class="hiddenstattable" style="border-spacing: 0">
             <tr id="hiddenstatrowAxisAutobuyerUpgrades"><td class="td40">Axis Autobuyer Upgrades</td><td class="td40" id="hiddenstatAxisAutobuyerUpgrades">undefined</td></tr>
-            <tr id="hiddenstatrowAxisScalingStart"><td class="td40">Axis Scaling Start</td><td class="td40" id="hiddenstatAxisScalingStart">undefined</td></tr>
-            <tr id="hiddenstatrowAxisSuperscalingStart"><td class="td40">Axis Superscaling Start</td><td class="td40" id="hiddenstatAxisSuperscalingStart">undefined</td></tr>
+            <tr id="hiddenstatrowAxisScaling"><td class="td40">Axis Scaling Start</td><td class="td40" id="hiddenstatAxisScaling">undefined</td></tr>
+            <tr id="hiddenstatrowAxisSuperscaling"><td class="td40">Axis Superscaling Start</td><td class="td40" id="hiddenstatAxisSuperscaling">undefined</td></tr>
             <tr id="hiddenstatrowDarkAxisScalingStart"><td class="td40">Dark Axis Scaling Start</td><td class="td40"><span id="hiddenstatDarkAxisScalingStart">undefined</span></td></tr>
             <tr id="hiddenstatrowDarkAxisSuperscalingStart"><td class="td40">Dark Axis Superscaling Start</td><td class="td40" id="hiddenstatDarkAxisSuperscalingStart">undefined</td></tr>
             <tr id="hiddenstatrowDeltaTime"><td class="td40">Delta Time</td><td class="td40" id="hiddenstatDeltaTime">undefined</td></tr>
@@ -650,7 +668,7 @@
             <td><button class="darkaxisbutton" onClick="buyDarkAxis('S')" id="DarkSAxisButton">Dark S Axis (<span id="DarkSAxisAmount">0</span>)<br>Dark matter gain is raised to the power of <span id="DarkSAxisEffect">1</span><br>Cost: <span id="DarkSAxisCost">undefined</span></button></td>
           </tr></table>
           <br>You have <span class="darkmattertext" id="darkstarDisplay">0</span> dark stars<br>
-          <button class="darkstarbutton" id="darkstarButton" onClick="gainDarkStar()">Reset dark matter to gain a dark star<br>The base gain of dark matter will become 5% stronger<br>Dark <span id="nextDarkStarAxis">?</span> Axis will become 10% stronger<br>You will gain 1% more free axis from dark matter<br>Progress: <span id="darkstarProgress">0</span>/<span id="darkstarRequirement">0</span> total dark axis </button>
+          <button class="darkstarbutton" id="darkstarButton" onClick="gainDarkStar()">Reset dark matter to gain a dark star (this also stardust-resets)<br>The base gain of dark matter will become 5% stronger<br>Dark <span id="nextDarkStarAxis">?</span> Axis will become 10% stronger<br>You will gain 1% more free axis from dark matter<br>Progress: <span id="darkstarProgress">0</span>/<span id="darkstarRequirement">0</span> total dark axis </button>
         </div>
         <div class="stardustTab" id="Energy" style="display:none">
           <table style="width:100vw"><tr>

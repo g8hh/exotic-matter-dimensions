@@ -127,16 +127,16 @@ button {
   color: #000000;
   font-size: 15px;
   border-radius: 4px;
-  width: 110px;
-  height: 80px;
+  width: 125px;
+  height: 90px;
 }
 .lockedstardustResetButton{
   background-color: #cccccc;
   color: #000000;
   font-size: 15px;
   border-radius: 4px;
-  width: 100px;
-  height: 80px;
+  width: 125px;
+  height: 90px;
 }
 .matterlayertext{
   color: #00ff00;
@@ -359,8 +359,8 @@ button {
   color: #ffffff;
   padding: 4px;
   border-radius: 6px;
-  width: 400px;
-  height: 100px
+  width: 480px;
+  height: 120px
 }
 .lockeddarkstarbutton {
   background-color: #999999;
