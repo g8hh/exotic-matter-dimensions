@@ -18,10 +18,10 @@ const oldSaveLoaders = {
 	},
 	beta: function(savegame) {
 		console.log("Beta save loaded")
-		g = Object.assign({},basesave);
+		g = structuredClone(basesave);
 		if (savegame.stardustUpgrades == undefined) {
 			// alpha saves are beyond saving.
-		} else if (axisCodes.map(x => savegame["dark"+x+"Axis"]).reduce((x,y)=>x+y)>=1000) {
+		} else if (axisCodes.map(x => savegame["dark"+x+"Axis"]).sum()>=1000) {
 			g.stardust=N("e1000");
 			g.StardustResets=30;
 			timeFix(86400);
@@ -216,7 +216,7 @@ const oldSaveLoaders = {
 			g.featuresUnlocked=["Masteries"];
 			g.storySnippets=[];
 		} else {
-			return;  // no progress skip
+			return;	// no progress skip
 		}
 		g.ownedAchievements = g.ownedAchievements.map(x => String(x));
 	}

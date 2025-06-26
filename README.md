@@ -1,12 +1,16 @@
-# Exotic-Matter-Dimensions
-Exotic Matter Dimensions is an incremental game *loosely* based on Antimatter Dimensions.
+# Exotic Matter Dimensions
+*Exotic Matter Dimensions* is an incremental game loosely inspired by titles including *Antimatter Dimensions*, *Synergism* and *Incremental Mass Rewritten*.
 ## The Changelog of the Future
-##### Content
-* Something which makes energy not affect things below 1
-* "Axistential Dread" achievement
-##### High priority
-##### Upper medium priority
-##### Lower medium priority
-* Improved study buttons
-##### Low priority
-* Star icons
+### Content
+#### Achievements
+* Go from galaxy 0 to X without assigning stars
+#### Lifeblood
+* Energy not affect things below 1
+* Automatic research respec and rebuy if reduction possible
+* SAP => ZP
+* History of the Wormholes
+	*
+### High priority
+### Upper medium priority
+### Lower medium priority
+### Low priority

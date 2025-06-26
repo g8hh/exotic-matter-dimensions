@@ -1,6 +1,6 @@
 function howToPlay(x) {
 	let htp = HTPtexts[HTPtexts.map(x => x.name).indexOf(x)]
-	let text = "<h1>"+htp.name+"</h1>"+htp.paragraphs.map(x => "<p>"+x+"</p>").join("")
+	let text = "<h1>"+((htp.name==="Galaxies")?"<span onClick=\"secretAchievementList[31].click()\">The Hitchhiker's Guide to the Galaxies</span>":htp.name)+"</h1>"+htp.paragraphs.map(x => "<p>"+x+"</p>").join("")
 	if (htp.dynamics !== undefined) for (let i=0;i<htp.dynamics.length;i++) text = text.replace("{"+i+"}",htp.dynamics[i]())
 	popup({
 		text:text,
@@ -41,14 +41,48 @@ const HTPtexts = [
 		visibility:function(){return true},
 		paragraphs:[
 			"While not playing, you gain dilated time at a rate of 1 second of dilated time per second spent offline.",
-			"Dilated time can be used to Overclock the game. Overclock uses dilated time to accelerate production.{0}",
-			"Below a multiplier of {1}×, Overclock is equally efficient to playing online. However, above this threshold, the Overclock cost increases much quicker than the multiplier given, causing some dilated time to be wasted.",
+			"Dilated time can be used to Overclock the game. Overclock uses dilated time to accelerate production.{0}<br>Below a multiplier of {1}×, Overclock is equally efficient to playing online. However, above this threshold, the Overclock cost increases much quicker than the multiplier given, causing some dilated time to be wasted.",
+			"Time can also be frozen. While time is frozen, you will accumulate dilated time as if the game was closed, but you can still interact with it.",
+			"Finally, time can also be equalized. This will make all frames exactly 50 milliseconds long, removing randomness caused by factors like processor speed - any excess is added as further dilated time. This is useful for timed achievements such as 212.",
 			"{2}"
 		],
 		dynamics:[
 			()=>(g.stars>21||unlocked("Hawking Radiation"))?" Unlike tickspeed, the Overclock multiplier affects things like the 'real' time played.":"",
-			()=>dilationUpgrades[1].effect().toFixed(0),
-			()=>g.dilationUpgradesUnlocked==0?"":"Later in the game, dilated time can also be spent on Dilation Upgrades, which improve Overclock in different ways."
+			()=>stat.overclockSoftcap.toFixed(0),
+			()=>g.dilationUpgradesUnlocked===0?"":"Later in the game, dilated time can also be spent on Dilation Upgrades, which improve Overclock in different ways."
+		]
+	},
+	{
+		name:"Tickspeed",
+		visibility:function(){return stat.tickspeed.neq(c.d1)},
+		paragraphs:[
+			"Tickspeed is a multiplier to how fast the game runs.",
+			"It affects all resources which are generated 'per second' - this is exotic matter, mastery power (including the timer), the W axis effect, dark matter, energy and so on.",
+			"It does not affect the 'time played' stat (although there is a separate statistic accounting for tickspeed) or anything which would make tickspeed hinder progress - for example, the timers for timed achievements such as 212."
+		]
+	},
+	{
+		name:"Formulas",
+		visibility:function(){return true},
+		paragraphs:[
+			"By pressing {0}, you can view certain formulas within the game (you can change this key in Options > Hotkeys).",
+			"Here is an overview of some mathematical notation used in these formulas:",
+			tableGenerator([
+				["⌊x⌋","Floor"],
+				["⌈x⌉","Ceiling"],
+				["log(n)","Logarithm"],
+				["log<sup>[x]</sup>(n)","Iterated logarithm: for example, log<sup>[2]</sup>(20) = log(log(20))"],
+				["log<sub>b</sub>(n)","Base b logarithm"],
+				["a ⇈ b","Tetration"],
+				["slog","Superlogarithm"],
+				["Σ<span class=\"xscript\"><sup>b</sup><sub>a</sub></span>x","Summation: for example, Σ<span class=\"xscript\"><sup>4</sup><sub>1</sub></span>n<sup>2</sup> = "+[1,2,3,4].map(x=>"("+x+")<sup>2</sup>").join(" + ")+" = 30"],
+				["Π<span class=\"xscript\"><sup>b</sup><sub>a</sub></span>x","Product: for example, Π<span class=\"xscript\"><sup>4</sup><sub>1</sub></span>n<sup>n</sup> = "+[1,2,3,4].map(x=>"("+x+")<sup>("+x+")</sup>").join(" × ")+" = 27648"],
+				["Ξ<sup>[x]</sup>n","Iterated exponentiation: for example, Ξ<sup>[2]</sup>3 = 10<sup>10<sup>3</sup></sup>"],
+				["dB(x)","'Decibel' function - returns a 'nice' value close to 10<sup>x ÷ 10</sup><br>(Exact value is [1,1.25,1.6,2,2.5,3.2,4,5,6.4,8][x mod 10] × 10<sup>⌊x ÷ 10⌋</sup>"]
+			],"","","border-style:solid;border-width:1px;border-color:#00ff00;padding:5px;",false)
+		],
+		dynamics:[
+			()=>formatHotkey(g.hotkeys["Show/hide formulas"])
 		]
 	},
 	{
@@ -102,7 +136,7 @@ const HTPtexts = [
 			"{0}"
 		],
 		dynamics:[
-			()=>(unlocked("Light")||g.stars==60)?"It is impossible to have more than 60 stars.":""
+			()=>(unlocked("Light")||g.stars===starCap())?("It is impossible to have more than "+BEformat(starCap())+" stars."):""
 		]
 	},
 	{
@@ -149,10 +183,10 @@ const HTPtexts = [
 	},
 	{
 		name:"Wormhole",
-		visibility:function(){return unlocked("Hawking Radiation")||stat.totalDarkAxis.gt(c.e3)},
+		visibility:function(){return unlocked("Hawking Radiation")||stat.totalDarkAxis.gte(c.e3)},
 		paragraphs:[
-			"Wormhole is the second reset option unlocked in the game. Wormhole resets everything that Stardust resets, as well as everything in the Stardust tab. In exchange, you get hawking radiation.",
-			"Unlike stardust, hawking radiation has no innate effect. However, it can be used to gain observations in the 'Research' tab. In addition, some Wormhole Milestones have effects which increase based on how much hawking radiation you have."
+			"Wormhole is the second reset option unlocked in the game. Wormhole resets everything that Stardust resets, as well as everything in the Stardust tab. In exchange, you get Hawking radiation.",
+			"Unlike stardust, Hawking radiation has no innate effect. However, it can be used to gain observations in the 'Research' tab. In addition, some Wormhole Milestones have effects which increase based on how much Hawking radiation you have."
 		]
 	},
 	{
@@ -160,7 +194,7 @@ const HTPtexts = [
 		visibility:function(){return unlocked("Hawking Radiation")},
 		paragraphs:[
 			"Completing Tier 5 achievements unlocks Wormhole Milestones.",
-			"Wormhole Milestones make the game less tedious, for r by unlocking new automators and allowing some things to persist on Stardust and Wormhole reset. A few milestones also provide production boosts."
+			"Wormhole Milestones make the game less tedious, for example by unlocking new automators and allowing some things to persist on Stardust and Wormhole reset. A few milestones also provide production boosts."
 		]
 	},
 	{
@@ -184,9 +218,9 @@ const HTPtexts = [
 		visibility:function(){return unlocked("Studies")},
 		paragraphs:[
 			"Studies are unlocked by buying special red-bordered Researches.",
-			"When a Study is started, a Wormhole reset takes place and special restrictions are applied.",
-			"If you can reach a certain number of total dark axis in a Study, you can complete it. This removes the Study's restrictions, as well as giving 3 bonuses.",
-			"Each Study can be completed up to 4 times - each completion has harsher restrictions and a higher goal.",
+			"When a Study is started, a Wormhole reset takes place and special restrictions ('Bindings') are applied.",
+			"If you can reach a certain number of total dark axis in a Study, you can complete it. This disables the Study's Binding, as well as giving 3 bonuses.",
+			"Each Study can be completed up to 4 times - each completion has harsher Bindings and a higher goal.",
 			"Most Studies also unlock new research when completed."
 		]
 	},
@@ -194,9 +228,61 @@ const HTPtexts = [
 		name:"Light",
 		visibility:function(){return unlocked("Light")},
 		paragraphs:[
-			"In Light, you can generate different colors of chroma. The amount of chroma gained is based on how many stars you have: if you have 60 stars (the maximum), a base of 1 chroma per second is gained. However, if you have less than 60 stars, chroma gain is divided by 3 for every star below 60.",
+			"In Light, you can generate different colors of chroma. The amount of chroma gained is based on how many stars you have: if you have {0} stars (the maximum), a base of 1 chroma per second is gained. However, if you have less than {0} stars, chroma gain is divided by 3 for every star below {0}.",
 			"If you gain sufficient chroma of a type, you gain a lumen, giving one of a variety of boosts. The requirement to gain lumens grows exponentially, but the factor by which it increases varies between colors.",
 			"Red, green and blue chroma can be generated for free. However, other colors of chroma must instead be created from other colors, using their chroma in the process."
+		],
+		dynamics:[
+			()=>BEformat(starCap())
+		]
+	},
+	{
+		name:"Galaxies",
+		visibility:function(){return unlocked("Galaxies")},
+		paragraphs:[
+			"Once you reach {0} stars, it is impossible to buy more. Instead, you can gain Galaxies.",
+			"Each Galaxy you gain will dramatically increase star costs, but provide a boost in return.",
+			"If the star penalty proves to be too difficult for you, you can destroy the Galaxies you have created - however, gaining or losing Galaxies forces a Wormhole reset."
+		],
+		dynamics:[
+			()=>BEformat(starCap())
+		]
+	},
+	{
+		name:"Luck",
+		visibility:function(){return unlocked("Luck")},
+		paragraphs:[
+			"Once you complete Study VII, you will start generating luck shards.",
+			"These luck shards can be used to buy runes - you start with only trifolium available, but unlock more types over time.",
+			"Each type of rune can be spent on refundable luck upgrades."
+		]
+	},
+	{
+		name:"Prismatic",
+		visibility:function(){return unlocked("Prismatic")},
+		paragraphs:[
+			"Once you buy research 20-8, you will generate prismatic based on all your lumen types.",
+			"You can spend this Prismatic on Prismatic Upgrades. Most Prismatic Upgrades work like normal upgrades - however, a few have a negative effect in addition to their positive one. These can be refunded."
+		]
+	},
+	{
+		name:"Antimatter",
+		visibility:function(){return unlocked("Antimatter")},
+		paragraphs:[
+			"Upon completing Study IX, you will passively generate antimatter over time.",
+			"Like exotic matter and dark matter, it can be used to buy a new type of axis. However, you can only access the first four anti-axis initially. The remaining ones must be unlocked by research.",
+			"In addition to their primary effect, each dark axis also increases the level of the corresponding normal and dark axis multiplicatively."
+		]
+	},
+	{
+		name:"Study XIII",
+		visibility:function(){return unlocked("Study XIII")},
+		paragraphs:[
+			"Study XIII works differently from the previous Studies.",
+			"In Study XIII, you gain access to a tree of Bindings. You can click Bindings from the tree to activate them, and click them again to deactivate them. Each Binding gives binding levels.",
+			"When you enter Study XIII, the restrictions of all the Bindings you have active will take effect. However, if you can reach the goal requirement, your completions of Study XIII will increase to your binding levels.",
+			"Instead of having three rewards, Study XIII has a wide range of named rewards. These rewards are unlocked at specific thresholds of completions, and can be upgraded by getting even more completions.",
+			"Note - unlike Research, where to activate a Research you only need one of its parents, in order to activate a Binding you must have all applicable parent Bindings active."
 		]
 	}
 ].sort((a,b)=>(a.name>b.name)?1:-1)

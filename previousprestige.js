@@ -1,36 +1,39 @@
 const previousPrestige = {
-	masteries: function() {
-		return g.activeMasteries.map((x,index) => (x==null)?null:(x+index*10)).filter(x => typeof x == "number")
-	},
-	stars: function() {
-		return starList.filter(x=>g.star[x])
-	},
-	research: function() {
-		return Object.keys(research).filter(x=>g.research[x])
-	},
-	baseStardust: function() {
-		return {masteries:[],stars:[],research:[],time:Number.MAX_VALUE,truetime:c.maxvalue,gain:N(0)}
-	},
-	baseWormhole: function() {
-		return {masteries:[],stars:[],research:[],time:Number.MAX_VALUE,truetime:c.maxvalue,gain:N(0),efficiency:N(0),study:0}
-	},
-	generate: function(layer) {
-		let out = {masteries:this.masteries(),stars:this.stars(),research:this.research()};
-		switch (layer) {
-			case 1:
-				out.time = g.timeThisStardustReset;
-				out.truetime = g.truetimeThisStardustReset;
-				out.gain = stat.pendingstardust.floor();
-				break;
-			case 2:
-				out.time = g.timeThisWormholeReset;
-				out.truetime = g.truetimeThisWormholeReset;
-				out.gain = stat.pendinghr.floor();
-				out.efficiency = stat.pendinghr.floor().div(g.timeThisWormholeReset);
-				out.study = g.activeStudy
-				break;
-			default:
-				error("Cannot access previousPrestige.generate("+layer+")")
+	masteries: function() {return g.activeMasteries.map((x,index) => (x===0)?null:(x+index*10)).filter(x => typeof x === "number")},
+	stars: function() {return starList.filter(x=>g.star[x])},
+	research: function() {return Object.keys(research).filter(x=>g.research[x])},
+	luck: function() {return [
+		[c.d0],
+		[c.d0,c.d0],
+		luckUpgradeList.trifolium.map(x=>g.luckUpgrades[x]),
+		luckUpgradeList.quatrefolium.map(x=>g.luckUpgrades[x]),
+		luckUpgradeList.cinquefolium.map(x=>g.luckUpgrades[x])
+	]},
+	generate: function(resLayer,inLayer,base) {
+		if ((arguments.length<3)||Object.values(arguments).includes(undefined)) functionError("previousPrestige.generate",arguments)
+		let out = {};
+		if (resLayer===1) {
+			out.time = base?Number.MAX_VALUE:g.timeThisStardustReset;
+			out.truetime = base?c.maxvalue:g.truetimeThisStardustReset;
+			out.gain = base?c.d0:stat.pendingstardust.floor();
+		} else if (resLayer===2) {
+			out.time = base?Number.MAX_VALUE:g.timeThisWormholeReset;
+			out.truetime = base?c.maxvalue:g.truetimeThisWormholeReset;
+			out.gain = base?c.d0:stat.pendinghr.floor();
+			out.efficiency = base?c.d0:stat.pendinghr.floor().div(g.timeThisWormholeReset);
+			out.study = base?0:g.activeStudy
+		} else {
+			functionError("previousPrestige.generate",arguments)
+		}
+		if (inLayer>=1) {
+			out.masteries = base?[]:this.masteries()
+			if (inLayer>=2) {
+				out.stars = base?[]:this.stars()
+				if (inLayer>=3) {
+					out.research = base?[]:this.research()
+					out.luck = base?[[c.d0],[c.d0,c.d0],[c.d0,c.d0,c.d0],[c.d0,c.d0,c.d0,c.d0],[c.d0,c.d0,c.d0,c.d0,c.d0]]:this.luck()
+				}
+			}
 		}
 		return out;
 	},
@@ -48,16 +51,16 @@ const previousPrestige = {
 			visibility:function(){return unlocked("Stardust")}
 		},
 		{
-			label:"Most rewarding run this Spacetime",
+			label:"Most rewarding run this Matrix",
 			layer:3,
 			location:function(){return g.previousStardustRuns.spacetime.highest},
-			visibility:function(){return unlocked("Spacetime")}
+			visibility:function(){return unlocked("Matrix")}
 		},
 		{
-			label:"Fastest run this Spacetime",
+			label:"Fastest run this Matrix",
 			layer:3,
 			location:function(){return g.previousStardustRuns.spacetime.fastest},
-			visibility:function(){return unlocked("Spacetime")}
+			visibility:function(){return unlocked("Matrix")}
 		},
 		{
 			label:"Most rewarding run this Wormhole",
@@ -92,22 +95,22 @@ const previousPrestige = {
 			visibility:function(){return unlocked("Hawking Radiation")}
 		},
 		{
-			label:"Most rewarding run this Spacetime",
+			label:"Most rewarding run this Matrix",
 			layer:3,
 			location:function(){return g.previousWormholeRuns.spacetime.highest},
-			visibility:function(){return unlocked("Spacetime")}
+			visibility:function(){return unlocked("Matrix")}
 		},
 		{
-			label:"Fastest run this Spacetime",
+			label:"Fastest run this Matrix",
 			layer:3,
 			location:function(){return g.previousWormholeRuns.spacetime.fastest},
-			visibility:function(){return unlocked("Spacetime")}
+			visibility:function(){return unlocked("Matrix")}
 		},
 		{
-			label:"Most efficient run this Spacetime",
+			label:"Most efficient run this Matrix",
 			layer:3,
 			location:function(){return g.previousWormholeRuns.spacetime.efficientest},
-			visibility:function(){return unlocked("Spacetime")}
+			visibility:function(){return unlocked("Matrix")}
 		}
 	],
 	buildListNodes: document.getElementsByClassName("previousPrestigeBuildList"),
@@ -124,31 +127,32 @@ const previousPrestige = {
 	},
 	showBuild:function(layer,type,index){
 		let location
-		if (layer=="stardust") {
-			if (type=="last") {
-				location = g.previousStardustRuns.last10[index]
-			} else if (type=="record") {
+		if (layer==="stardust") {
+			if (type==="last") {
+				location = g.previousStardustRuns.last10[index-1]
+			} else if (type==="record") {
 				location = previousPrestige.stardustRunsStored[index].location()
 			} else {
-				error("Cannot access previousPrestige.showBuild("+layer+","+type+","+index+")")
+				functionError("previousPrestige.showBuild",arguments)
 			}
-		} else if (layer=="wormhole") {
-			if (type=="last") {
-				location = g.previousWormholeRuns.last10[index]
-			} else if (type=="record") {
+		} else if (layer==="wormhole") {
+			if (type==="last") {
+				location = g.previousWormholeRuns.last10[index-1]
+			} else if (type==="record") {
 				location = previousPrestige.wormholeRunsStored[index].location()
 			} else {
-				error("Cannot access previousPrestige.showBuild("+layer+","+type+","+index+")")
+				functionError("previousPrestige.showBuild",arguments)
 			}
 		} else {
-			error("Cannot access previousPrestige.showBuild("+layer+","+type+","+index+")")
+			functionError("previousPrestige.showBuild",arguments)
 		}
+		let out = []
+		if (location.masteries!==undefined) {out.push(["Masteries",location.masteries.filter(x=>x%10>0).join(",")])}
+		if (location.stars!==undefined) {out.push(["Stars",location.stars.join(",")])}
+		if ((location.research!==undefined)&&unlocked("Hawking Radiation")) {out.push(["Research",location.research.join(",")])}
+		if ((location.luck!==undefined)&&unlocked("Luck")) {out.push(["Luck",location.luck.filter(x=>x.map(i=>N(i).sign).includes(1)).map((x,i)=>(i+1)+":"+x.join(",")).join("\n")])}
 		popup({
-			text:[
-				["Stars",location.stars.join(","),true],
-				["Masteries",location.masteries.join(","),true],
-				["Research",location.research.join(","),unlocked("Hawking Radiation")]
-			].filter(x => x[2]).map(x => "<p>"+x[0]+"<br><textarea style=\"width:90%;height:40px\">"+x[1]+"</textarea></p>").join(""),
+			text:out.filter(x=>x[1]!=="").map(x => "<p>"+x[0]+"<br><textarea style=\"width:90%;height:40px\">"+x[1]+"</textarea></p>").join(""),
 			buttons:[["Close",""]]
 		})
 	}
